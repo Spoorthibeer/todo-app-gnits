@@ -2,9 +2,13 @@ require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const path = require("path");
+const cors = require("cors");
 const todoRoutes = require("./routes/todoRoutes");
 
 const app = express();
+
+// Enable CORS so the Vite frontend can talk to this server
+app.use(cors());
 app.use(express.json());
 
 // Log every API request: method, url, status, time taken, and body for writes
@@ -23,6 +27,11 @@ app.use("/api", (req, res, next) => {
 
 // API routes
 app.use("/api/todos", todoRoutes);
+
+// Catch-all for unknown /api routes
+app.all("/api/{*splat}", (req, res) => {
+  res.status(404).json({ message: "API route not found" });
+});
 
 // Serve the React build (used in production)
 const buildPath = path.join(__dirname, "../client/dist");
